@@ -1,0 +1,260 @@
+[
+  {
+    "title": "Neural networks through matrix operations",
+    "body": "Affine maps, backpropagation, PCA and SVD\nUE25MA242A: Mathematical Foundation for AI & Data Science",
+    "notes": "Introduce the research question: how do nonlinear activations extend affine classifiers, and how can matrix decompositions describe the learned maps? Our network uses NumPy for its calculations. It also relies on calculus, probability and optimization."
+  },
+  {
+    "title": "Connection to the supplied projects",
+    "body": "Project 10: compositions of matrix transformations\nProject 11: PCA of hidden activations\nProject 14: SVD and rank approximation\nAn extension of the supplied topics",
+    "notes": "The sheet lists 14 projects, without a neural-network problem. Present this as an inspired extension and confirm that extensions are acceptable. The confirmed course code is UE25MA242A. Sources: supplied problem sheet and adapted Anna Zemlyanova manual, Projects 10, 11 and 14."
+  },
+  {
+    "title": "Two spirals and a held-out test set",
+    "body": "400 points, two turns per spiral\nCartesian noise standard deviation 0.0125\n240 training, 80 validation, 80 test\nBalanced classes in each split",
+    "image": "dataset_split.png",
+    "notes": "Data seed 42, split seed 2026. Every sample is a column of X. Test data do not participate in training or checkpoint selection. Coordinates already lie approximately within the unit disk."
+  },
+  {
+    "title": "Why a line cannot classify every point",
+    "body": "An affine classifier has a straight decision boundary\nTwo same-class segments intersect across classes\nThe intersection lies in both convex hulls\nPerfect strict separation is impossible",
+    "notes": "Use the saved convex hull witness in metrics.json. An affine score preserves convex combinations, so the intersection could not have opposite signs. This proves impossibility of perfect classification on these points. It does not limit affine accuracy to 50%. The measured linear test score can exceed 50%."
+  },
+  {
+    "title": "Architecture and parameter count",
+    "table": [
+      [
+        "Map",
+        "Weights",
+        "Biases",
+        "Parameters"
+      ],
+      [
+        "Input to hidden 1",
+        "16 x 2",
+        "16 x 1",
+        "48"
+      ],
+      [
+        "Hidden 1 to hidden 2",
+        "16 x 16",
+        "16 x 1",
+        "272"
+      ],
+      [
+        "Hidden 2 to output",
+        "2 x 16",
+        "2 x 1",
+        "34"
+      ],
+      [
+        "Total",
+        "320 entries",
+        "34 entries",
+        "354"
+      ]
+    ],
+    "body": "Two ReLU hidden layers and a softmax output",
+    "notes": "The architecture is 2-16-16-2 with three trainable affine maps. The original draft added the totals incorrectly. Hidden weights use He variance scaling and output weights use Xavier scaling. Initialization is a heuristic rather than a guarantee of spectral stability."
+  },
+  {
+    "title": "Vectorized forward propagation",
+    "body": "Z_l = W_l A_(l-1) + b_l 1^T\nA1 = ReLU(Z1), A2 = ReLU(Z2)\nP = softmax(Z3)\nEach column holds one sample",
+    "notes": "For training, m=240. Z1 and Z2 have 16 rows, and Z3 has two rows. Bias broadcasting implements b times a row of ones. Without hidden nonlinearities, affine maps collapse to an effective W and b. Batch matrix computation eliminates loops over individual samples, but computational cost still grows with sample count and matrix size."
+  },
+  {
+    "title": "Cross-entropy and matrix gradients",
+    "body": "D3 = P - Y\nD_l = (W_(l+1)^T D_(l+1)) * 1[Z_l > 0]\ngrad(W_l) = D_l A_(l-1)^T / m\ngrad(b_l) = D_l 1 / m",
+    "notes": "D is unaveraged, so divide by m exactly once in parameter gradients. The objective is mean cross-entropy. The transpose arises from the chain rule and Euclidean adjoint identity. It is generally not an inverse. The weight gradient is a sum of outer products with rank at most one per sample. Source: Goodfellow et al., Deep Learning Chapter 6, https://www.deeplearningbook.org/contents/mlp.html"
+  },
+  {
+    "title": "Independent gradient verification",
+    "body": "Centered finite differences check every scalar\n35 entries checked in a small network\nMaximum absolute error: 9.89e-11\nSeven mathematical checks pass",
+    "notes": "Numerical and analytical gradients agree away from ReLU kinks. Other tests cover extreme logits, stratified splitting, affine collapse including biases, spectral identities, the convex hull witness and checkpoint restoration. Source: Stanford CS231n gradient checking, https://cs231n.github.io/neural-networks-3/"
+  },
+  {
+    "title": "Training and validation",
+    "body": "12,000 full-batch updates, learning rate 0.1\nCheckpoints every 50 updates\nSeed 42 selects epoch 11950\nSelection minimizes validation loss",
+    "image": "learning_curves.png",
+    "notes": "Metrics at epoch k describe exactly k completed updates. The dashed line marks the selected checkpoint. The full trajectory can contain loss increases. The model restores the selected checkpoint, which may precede the final epoch. Test data are absent from the optimization curves."
+  },
+  {
+    "title": "Primary results on disjoint data",
+    "table": [
+      [
+        "Model",
+        "Parameters",
+        "Train",
+        "Validation",
+        "Test",
+        "Epoch"
+      ],
+      [
+        "Linear",
+        "6",
+        "50.00%",
+        "45.00%",
+        "58.75%",
+        "4500"
+      ],
+      [
+        "Shallow",
+        "82",
+        "57.50%",
+        "51.25%",
+        "58.75%",
+        "50"
+      ],
+      [
+        "Deep",
+        "354",
+        "97.08%",
+        "93.75%",
+        "90.00%",
+        "11950"
+      ]
+    ],
+    "body": "Deep network: 72/80 test predictions correct",
+    "notes": "All rows use initialization seed 42 and the same dataset split and update budget. Train, validation and test accuracies are clearly separate. Differences also reflect parameter count and optimization. This is not a capacity-matched study."
+  },
+  {
+    "title": "Initialization sensitivity",
+    "table": [
+      [
+        "Model",
+        "Seed 42",
+        "Seed 43",
+        "Seed 44",
+        "Mean",
+        "Sample SD"
+      ],
+      [
+        "Linear",
+        "58.75%",
+        "57.50%",
+        "61.25%",
+        "59.17%",
+        "1.91 pp"
+      ],
+      [
+        "Shallow",
+        "58.75%",
+        "61.25%",
+        "55.00%",
+        "58.33%",
+        "3.15 pp"
+      ],
+      [
+        "Deep",
+        "90.00%",
+        "92.50%",
+        "78.75%",
+        "87.08%",
+        "7.32 pp"
+      ]
+    ],
+    "body": "Three initializations on one fixed split",
+    "notes": "The mean and sample standard deviation describe sensitivity to random initialization on this one split. We report every run, without selecting the best test seed. Sampling uncertainty, new data splits and distribution shift remain outside this study."
+  },
+  {
+    "title": "The learned decision boundaries",
+    "image": "model_comparison.png",
+    "body": "Dots are held-out test points\nContours mark equal class probabilities",
+    "notes": "The ReLU model produces piecewise affine logits. Its binary equal-logit boundary is piecewise linear. The comparison shows a learned winding boundary, not proof that every deep network succeeds or that every shallow network fails. The color surface does not prove probability calibration."
+  },
+  {
+    "title": "Hidden geometry through PCA",
+    "image": "hidden_representations.png",
+    "body": "PCA bases use training activations\nTwo components can discard useful information",
+    "notes": "SVD of centered training activations gives a PCA basis. We project test activations using the same training mean and basis. The plots state retained variance. These variance ratios concern activation matrices, not weight matrices. The output boundary is the diagonal z0=z1."
+  },
+  {
+    "title": "Weight spectra and nullspaces",
+    "table": [
+      [
+        "Weight",
+        "Shape",
+        "Rank",
+        "Input nullity",
+        "s_max / s_min"
+      ],
+      [
+        "W1",
+        "16 x 2",
+        "2",
+        "0",
+        "1.190"
+      ],
+      [
+        "W2",
+        "16 x 16",
+        "16",
+        "0",
+        "197.537"
+      ],
+      [
+        "W3",
+        "2 x 16",
+        "2",
+        "14",
+        "13.287"
+      ]
+    ],
+    "body": "W = U diag(s) V^T\nGram eigenvalues are s_i^2 plus structural zeros",
+    "notes": "A 2-by-16 full-row-rank output map still has input nullity 14. The singular value ratio concerns nonzero directions, not an inverse on all input dimensions. SVD factors need not be unique. Full weight rank does not prove every neuron is active or that gradients are stable. Source: https://numpy.org/doc/stable/reference/generated/numpy.linalg.svd.html"
+  },
+  {
+    "title": "SVD approximation of the hidden map",
+    "table": [
+      [
+        "Rank k",
+        "Energy",
+        "Factor entries",
+        "Validation",
+        "Test"
+      ],
+      [
+        "2",
+        "64.47%",
+        "64",
+        "56.25%",
+        "65.00%"
+      ],
+      [
+        "4",
+        "83.11%",
+        "128",
+        "68.75%",
+        "77.50%"
+      ],
+      [
+        "8",
+        "95.61%",
+        "256",
+        "96.25%",
+        "90.00%"
+      ],
+      [
+        "12",
+        "99.72%",
+        "384",
+        "92.50%",
+        "90.00%"
+      ],
+      [
+        "16",
+        "100.00%",
+        "512",
+        "93.75%",
+        "90.00%"
+      ]
+    ],
+    "body": "Fixed rank truncations of W2, without retraining",
+    "notes": "The dense W2 has 256 entries. A rank k factorization would store 32k entries, excluding biases. Our measurements materialize the approximation and do not save compressed factors. The discarded singular-value energy gives the optimal Frobenius error, but classification accuracy can change. This directly extends SVD compression from supplied Project 14."
+  },
+  {
+    "title": "Conclusions and limits",
+    "body": "Nonlinear features improve this spiral experiment\nMatrix calculus makes learning explicit\nPCA and SVD describe different objects\nOne split and three seeds limit the conclusions",
+    "notes": "Conclude with a precise claim: the chosen configuration learns a nonlinear boundary, and independent numerical checks support the gradient implementation. Do not claim linear algebra alone creates AI, that depth is mandatory, or that weight spectra prove data-manifold recovery. A sufficiently wide shallow nonlinear network can be expressive. Source: Goodfellow et al., Deep Learning Chapter 6. Read docs/REPORT.md and docs/VIVA_GUIDE.md for details."
+  }
+]

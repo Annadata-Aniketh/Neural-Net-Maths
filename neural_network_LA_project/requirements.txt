@@ -1,0 +1,5 @@
+numpy==2.5.3
+matplotlib==3.11.2
+Pillow>=10
+# Optional, only for opening the notebook interactively:
+# jupyterlab>=4

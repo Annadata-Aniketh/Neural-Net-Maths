@@ -1,0 +1,9 @@
+.DS_Store
+__pycache__/
+*.pyc
+.venv/
+.ipynb_checkpoints/
+.build/
+.chart-data-*/
+neural_network_LA_project/.chart-data-*/
+neural_network_LA_project/results/live_demo/
