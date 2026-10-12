@@ -61,7 +61,7 @@ python -m unittest discover -s tests -v
 ## Key Files & Submission Artifacts
 
 * **Report**: [`docs/PROJECT_REPORT.pdf`](docs/PROJECT_REPORT.pdf) — Comprehensive 9-page formal report.
-* **Presentation**: [`presentation/Neural_Network_Linear_Algebra.pptx`](presentation/Neural_Network_Linear_Algebra.pptx) & [`presentation/presentation.html`](presentation/presentation.html).
+* **Presentation**: [`presentation/Neural_Network_Linear_Algebra.pptx`](presentation/Neural_Network_Linear_Algebra.pptx), [`presentation/Neural_Network_Linear_Algebra.pdf`](presentation/Neural_Network_Linear_Algebra.pdf), & [`presentation/Presentation_Script.txt`](presentation/Presentation_Script.txt).
 * **Jupyter Notebook**: [`notebooks/neural_network_project.ipynb`](notebooks/neural_network_project.ipynb) — Step-by-step interactive walkthrough.
 * **Core Code**:
   * [`src/neural_network.py`](src/neural_network.py): Pure NumPy network, SVD analysis, and gradient checks.

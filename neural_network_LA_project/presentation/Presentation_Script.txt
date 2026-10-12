@@ -1,0 +1,207 @@
+NEURAL NETWORKS THROUGH MATRIX OPERATIONS
+Speaking script (about 9-10 minutes, 18 slides)
+
+HOW TO USE THIS
+- Speak it, don't read it. Glance at each paragraph, then say it in your own words.
+- Slow down at the big moments: slide 2 (the puzzle), slide 12 (results) and slide 14 (the boundaries).
+- Point at the screen when you see "as you can see here". It keeps people looking at the slide, not at you.
+- Each slide is roughly 30 seconds. If you run long, skip slide 10 and slide 16 first.
+
+
+-----------------------------------------------------------
+SLIDE 1 - Title                                   (~20 sec)
+-----------------------------------------------------------
+Good morning everyone. I'm [name], and this is [name]. Today we'd like to share a project we built for our Mathematical Foundation for AI and Data Science course.
+
+The idea is simple to say. How does a computer learn to draw a curved line, using nothing but matrix math? Over the next few minutes, we'll walk you through exactly that.
+
+
+-----------------------------------------------------------
+SLIDE 2 - What are we doing?                      (~40 sec)
+-----------------------------------------------------------
+Let's start with the puzzle itself. As you look at the slide here, imagine two spiral arms, one red and one blue, wound around each other.
+
+The goal is to teach a computer to tell red from blue, just from where a dot sits. Now, here's the catch: a single straight line can't split these cleanly, no matter where you draw it.
+
+So the trick is to let the computer bend the line. It does that by stacking a few simple math steps with one small twist, called ReLU, and learning by trial and error. And at the end, we use two tools, PCA and SVD, to look inside and see what it actually learned.
+
+
+-----------------------------------------------------------
+SLIDE 3 - Why this project?                       (~40 sec)
+-----------------------------------------------------------
+You might ask, why this project? A lot of course projects use one tool at a time. PCA on faces, for example, or SVD for image compression.
+
+We wanted to see these ideas working together. On the right, you can see what that looks like: three course topics in one project, built from scratch in pure NumPy, so no PyTorch and no TensorFlow. And we don't just train it, we also look inside.
+
+The question at the bottom is what drives everything. Why can't a straight line separate two spirals, and what happens when we add ReLU? Test accuracy goes from about 59 percent to 90.
+
+
+-----------------------------------------------------------
+SLIDE 4 - Built on three course projects          (~25 sec)
+-----------------------------------------------------------
+Quickly, here's how this connects to the syllabus.
+
+Project 10 is matrix transformations. Each layer of our network is exactly that: multiply, then shift. Project 11 is PCA, which we use to peek inside the hidden layers. And Project 14 is SVD, which we use to shrink one of the layers.
+
+So it's an extension of these three, rather than a copy of any one listed problem.
+
+
+-----------------------------------------------------------
+SLIDE 5 - Two spirals, three disjoint splits      (~30 sec)
+-----------------------------------------------------------
+Here's our data. As you can see, two spirals, red and blue, 400 points in total, with a little noise so it isn't too perfect.
+
+We split the points into three groups. 240 for training. 80 for validation, which is a separate check we use to pick the best moment to stop. And 80 for testing, which the network never sees until the very end.
+
+That last group is what keeps our final score honest.
+
+
+-----------------------------------------------------------
+SLIDE 6 - A line cannot separate every point      (~35 sec)
+-----------------------------------------------------------
+So why can't a line do it? Look at the picture on the right.
+
+If you take two red points and connect them, and two blue points and connect them, those two segments cross. That crossing point sits inside both groups. So a straight line would have to put the same point on both sides at once, and that's impossible.
+
+Our code actually computes that crossing point exactly, so this is a proof, not just a feeling. One small note: it doesn't mean a line scores 50 percent. It just means a line can never be perfect.
+
+
+-----------------------------------------------------------
+SLIDE 7 - The network: 2-16-16-2                  (~30 sec)
+-----------------------------------------------------------
+This is our network. Two numbers go in, the x and y position of a dot. There are two hidden layers with 16 units each. And two numbers come out, one score for each color.
+
+Altogether, it has 354 adjustable numbers. As the line under the diagram says, weights are adjustable dials, biases are shifts, and ReLU is a switch that bends the line. Nothing more exotic than that.
+
+
+-----------------------------------------------------------
+SLIDE 8 - How data flows through the network      (~35 sec)
+-----------------------------------------------------------
+So what happens inside each layer? Four small things, as you can see here.
+
+Multiply: the weights decide how much each input counts. Add: a small shift. Then ReLU, the orange one, which keeps positive numbers and turns negatives into zero. That's the bend. And finally, softmax turns the scores into percentages.
+
+And here's the important part. Without ReLU, all of those layers would collapse into one straight line. With it, the line can bend and wind.
+
+
+-----------------------------------------------------------
+SLIDE 9 - How the network learns                  (~30 sec)
+-----------------------------------------------------------
+How does it learn? Think of it as four steps on repeat.
+
+First, measure the error. Second, send that error backwards, so each layer knows how much it contributed. Third, work out a small nudge for every weight. And fourth, update and repeat, about twelve thousand times.
+
+What I like about this is that every single step is just matrix multiplication. There's no black box.
+
+
+-----------------------------------------------------------
+SLIDE 10 - Double-checking our math               (~25 sec)
+-----------------------------------------------------------
+Because we wrote this math by hand, we wanted to be sure it was right. So we tested it a second, independent way: nudge each weight slightly up and down, and compare with our calculation.
+
+We tested 35 weights, and the biggest difference was around ten to the minus ten, which is basically zero. Seven separate checks passed.
+
+
+-----------------------------------------------------------
+SLIDE 11 - The error falls as the network practices   (~35 sec)
+-----------------------------------------------------------
+Here's the learning in action. The blue line is the error on practice data, and the red line is the error on the separate check data. Lower is better.
+
+As you can see, for a while not much happens. Then, somewhere around round four thousand, the network figures out the spiral, and the error drops sharply.
+
+We trained for 12,000 rounds, and we kept the round with the lowest error on the check data, which was round 11,950.
+
+
+-----------------------------------------------------------
+SLIDE 12 - Deep network: 90% test accuracy        (~40 sec)
+-----------------------------------------------------------
+Now, the results. The linear model gets about 59 percent on the test data. The shallow network, with one hidden layer, also gets about 59.
+
+The deeper ReLU network gets 90 percent. That's 72 out of 80 test points correct, and a reasonable range around that is roughly 81 to 95 percent.
+
+To be fair, these models also differ in size, so it isn't a perfectly controlled comparison. The point we want to show is simple: ReLU breaks the straight-line limit.
+
+
+-----------------------------------------------------------
+SLIDE 13 - Deep results depend on the seed        (~30 sec)
+-----------------------------------------------------------
+We also tried three different random starting points. As you can see in the chart, the deep network scored 90, 92.5 and 78.75 percent. So the average is about 87, but it clearly varies.
+
+We're showing all three, not just the best one, because we think that's the honest way to report it.
+
+
+-----------------------------------------------------------
+SLIDE 14 - The learned decision boundaries        (~40 sec)
+-----------------------------------------------------------
+If there's one slide to remember, it's this one. Looking at the picture here, the first two panels are the linear and shallow models. You can see a nearly straight line cutting through the middle, and it doesn't really work.
+
+The third panel is the deep network. Here, the boundary actually winds along with the spiral. The dots are test points the network never trained on.
+
+So this is the whole idea in one picture: a straight line fails, and a bent line works.
+
+
+-----------------------------------------------------------
+SLIDE 15 - Looking inside with PCA                (~35 sec)
+-----------------------------------------------------------
+Now let's look inside. Each hidden layer has 16 numbers per point, which we can't draw directly. PCA squeezes that down into a 2D picture.
+
+What you see here, in the first two panels, is how the points sit inside the hidden layers. And on the right, the final scores: red and blue fall on opposite sides of a simple diagonal line, and that's how the network decides.
+
+The caveat is that a 2D picture loses some detail. So think of it as a window, not the full story.
+
+
+-----------------------------------------------------------
+SLIDE 16 - What the weights do                    (~30 sec)
+-----------------------------------------------------------
+Next, SVD. It tells us how much each layer stretches its input.
+
+Layer 1 stretches fairly evenly, about 1.2. Layer 2 is very uneven, around 198, so that's the layer reshaping the data most strongly. And Layer 3 squeezes 16 numbers down into just 2 scores.
+
+So the weights aren't random noise. They have a clear shape we can measure.
+
+
+-----------------------------------------------------------
+SLIDE 17 - Shrinking a layer: half is enough      (~35 sec)
+-----------------------------------------------------------
+Our last experiment. Can we shrink the middle layer? The idea is to keep only its most important parts and see if it still works, without retraining.
+
+Looking at the chart, with 8 of 16 parts, test accuracy is still 90 percent, the same as the full network. With just 2 parts, it falls to 65 percent.
+
+So the layer has some room to spare, but not unlimited.
+
+
+-----------------------------------------------------------
+SLIDE 18 - Conclusions and limits                 (~45 sec)
+-----------------------------------------------------------
+To wrap up, three things.
+
+One: a ReLU network learns the winding boundary, 90 percent on test data versus about 59 for the simpler models. Two: our hand-built math passes an independent check. And three: PCA and SVD give two different views, PCA shows what the data does inside, and SVD shows what the weights do.
+
+As for limits, we used one split, three seeds, and small synthetic data. And the shallow network doing poorly here doesn't mean shallow networks can't work.
+
+All our code is on GitHub. Thank you, and we'd be happy to take your questions.
+
+
+===========================================================
+IF SOMEONE ASKS... (one-line answers)
+===========================================================
+Q: What is ReLU?
+A: A switch that keeps positive numbers and turns negatives into zero. That small bend is what lets the network draw curves.
+
+Q: Why not just use PyTorch?
+A: We wanted to see every matrix step ourselves, so we built it from scratch in NumPy.
+
+Q: Why is 90% enough?
+A: This is a linear algebra project, not a competition. The goal was to show that ReLU breaks the straight-line limit, and 90 versus 59 shows that clearly.
+
+Q: Why does the deep result vary across seeds?
+A: Different random starting points lead the network to different solutions. We report all three runs, 90, 92.5 and 78.75 percent, instead of picking the best.
+
+Q: Could a shallow network work?
+A: Possibly, with enough width or better tuning. Ours didn't under this setup, but that doesn't prove shallow networks can't.
+
+Q: Does SVD compress the model?
+A: Here we only tested whether keeping fewer parts of one layer still works. At rank 8 it matches the full network, but we didn't save a compressed file.
+
+Q: Is the data real?
+A: No, it's synthetic spirals, so the results only tell us about this kind of data.

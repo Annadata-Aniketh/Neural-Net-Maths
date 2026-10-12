@@ -21,3 +21,4 @@ if ! "$python_bin" -c 'import numpy, matplotlib' >/dev/null 2>&1; then
 fi
 
 exec "$python_bin" -u "$project_dir/src/live_demo.py" "$@"
+# cd "/Users/aniketh/Documents/Maths" && ./neural_network_LA_project/run_live_demo.sh
